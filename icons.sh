@@ -8,7 +8,7 @@ sources=(
   "crew $raw/gustaferiksson/crew/main/pages/icon-512.png"
   "berth $raw/gustaferiksson/berth/main/pages/icon-512.png"
   "spaces $raw/gustaferiksson/spaces/$set_dir/icon_256x256@2x.png"
-  "rinse $raw/gustaferiksson/rinse/$set_dir/icon_256x256@2x.png"
+  "rinse $raw/gustaferiksson/rinse/main/docs/images/icon.png"
   "tidy $raw/gustaferiksson/tidy/$set_dir/icon_256x256@2x.png"
   "tape $raw/gustaferiksson/tape/$set_dir/icon_256x256@2x.png"
   "tine $raw/tinecli/tine/main/icon/tine.svg"
