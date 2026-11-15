@@ -12,10 +12,34 @@ jobs:
   icons:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - run: sudo apt-get update -q && sudo apt-get install -yq imagemagick librsvg2-bin
-      - run: ./icons.sh
-      - uses: stefanzweifel/git-auto-commit-action@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          commit_message: Update app icons
-          file_pattern: icons/*.png
+          persist-credentials: false
+
+      - run: sudo apt-get update -q && sudo apt-get install -yq imagemagick librsvg2-bin
+
+      - run: ./icons.sh
+
+      - name: Commit changed icons
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          changed=$(git status --porcelain --untracked-files=all -- icons | awk '{print $2}')
+          [ -z "$changed" ] && exit 0
+
+          additions=$(for f in $changed; do jq -n --arg path "$f" --arg contents "$(base64 -w0 "$f")" '{path: $path, contents: $contents}'; done | jq -s .)
+
+          jq -n \
+            --arg repo "$GITHUB_REPOSITORY" \
+            --arg branch "$GITHUB_REF_NAME" \
+            --arg head "$(git rev-parse HEAD)" \
+            --argjson additions "$additions" \
+            '{
+              query: "mutation($input: CreateCommitOnBranchInput!) { createCommitOnBranch(input: $input) { commit { url } } }",
+              variables: { input: {
+                branch: { repositoryNameWithOwner: $repo, branchName: $branch },
+                expectedHeadOid: $head,
+                message: { headline: "Update app icons" },
+                fileChanges: { additions: $additions }
+              } }
+            }' | gh api graphql --input -
