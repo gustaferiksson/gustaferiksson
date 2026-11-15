@@ -27,14 +27,12 @@ jobs:
           changed=$(git status --porcelain --untracked-files=all -- icons | awk '{print $2}')
           [ -z "$changed" ] && exit 0
 
-          additions=$(for f in $changed; do jq -n --arg path "$f" --arg contents "$(base64 -w0 "$f")" '{path: $path, contents: $contents}'; done | jq -s .)
-
-          jq -n \
+          for f in $changed; do base64 -w0 "$f" | jq -Rs --arg path "$f" '{path: $path, contents: .}'; done |
+          jq -s \
             --arg repo "$GITHUB_REPOSITORY" \
             --arg branch "$GITHUB_REF_NAME" \
             --arg head "$(git rev-parse HEAD)" \
-            --argjson additions "$additions" \
-            '{
+            '. as $additions | {
               query: "mutation($input: CreateCommitOnBranchInput!) { createCommitOnBranch(input: $input) { commit { url } } }",
               variables: { input: {
                 branch: { repositoryNameWithOwner: $repo, branchName: $branch },
