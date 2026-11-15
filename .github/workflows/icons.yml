@@ -1,0 +1,21 @@
+name: Icons
+
+on:
+  schedule:
+    - cron: "0 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  icons:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update -q && sudo apt-get install -yq imagemagick librsvg2-bin
+      - run: ./icons.sh
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Update app icons
+          file_pattern: icons/*.png
