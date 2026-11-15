@@ -21,7 +21,10 @@ mkdir -p icons
 
 for entry in "${sources[@]}"; do
   read -r name url <<<"$entry"
-  curl -fsSL "$url" -o "$tmp/$name.src"
+  if ! curl -fsSL "$url" -o "$tmp/$name.src"; then
+    echo "::warning::Keeping the current $name icon, $url is unavailable"
+    continue
+  fi
 
   if [[ $url == *.svg ]]; then
     rsvg-convert -w 512 -h 512 "$tmp/$name.src" -o "$tmp/$name.png"
