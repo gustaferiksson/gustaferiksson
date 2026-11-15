@@ -1,5 +1,3 @@
-I build small native apps for macOS and iOS, mostly for working alongside coding agents.
-
 <table>
 <tr>
 <td width="50%" valign="top">
